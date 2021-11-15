@@ -1,17 +1,25 @@
 {
   "name": "p",
   "version": "1.0.0",
-  "description": "",
   "main": "main.js",
+  "private": "true",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon main.js"
+    "dev": "concurrently npm:nodemon npm:open",
+    "nodemon": "nodemon main.js",
+    "open": "wait-on http://localhost:3000 -s 1 && open-cli http://localhost:3000",
+    "start": "node main.js"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Simon Busques",
+  "license": "MIT",
   "dependencies": {
     "express": "^4.17.1",
-    "nodemon": "^2.0.12",
     "socket.io": "^4.2.0"
+  },
+  "devDependencies": {
+    "concurrently": "^6.4.0",
+    "nodemon": "^2.0.12",
+    "open-cli": "^7.0.1",
+    "wait-on": "^6.0.0"
   }
 }

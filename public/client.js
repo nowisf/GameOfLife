@@ -1,39 +1,37 @@
-import {Tablero} from '/Tablero.js'
+import { Tablero } from "/Tablero.js";
 
+const canvas = document.getElementById("canvas");
 
-var canvas = document.getElementById("canvas");
+document.onkeydown = (key) => {
+  if (key.key == " ") {
+    socket.emit("decision", { id: "procesarMomento" });
+  }
+};
 
-document.onkeydown = (key)=>{
-    if(key.key== " "){
-        socket.emit("desicion",{id:"procesarMomento"})
-    }
-}
+const socket = io();
 
-var socket = io();
+let tablero = new Tablero(canvas);
+tablero.draw();
 
-
-let tablero = new Tablero(canvas)
-tablero.draw()
-
-socket.on("serverMsg",(msg)=>{
-
-    msg.forEach((string)=>{console.log(string)})
-})
-socket.on("tablero",(datos)=>{
-    tablero.setDatosTablero(datos)
-    tablero.draw()
-})
-
-
-canvas.addEventListener('mousemove', function(event) {
-
-    let coord = [event.offsetX, event.offsetY]
-    tablero.setMousePosition(coord)
-    tablero.draw()
-    
+socket.on("serverMsg", (msg) => {
+  msg.forEach((s) => {
+    console.log(s);
+  });
 });
-canvas.addEventListener('click', ()=>{
-    socket.emit("desicion",{id:"seleccionCasilla",variables:{coordenadas:tablero.getCoorSelec()}})
+socket.on("tablero", (datos) => {
+  tablero.setDatosTablero(datos);
+  tablero.draw();
 });
 
-
+canvas.addEventListener("mousemove", function (event) {
+  let coord = [event.offsetX, event.offsetY];
+  tablero.setMousePosition(coord);
+  tablero.draw();
+});
+canvas.addEventListener("click", () => {
+  const { x, y } = tablero.getCoorSelec();
+  socket.emit("decision", {
+    id: "seleccionCasilla",
+    variables: { coordenadas: { x, y } },
+  });
+});

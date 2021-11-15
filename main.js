@@ -1,49 +1,47 @@
-//import { Enon } from "./Enon.js"
-//import { Mundo } from "./Mundo.js"
-const { Plano2D, Operador } = require('./Dimension2D.js');
-const express = require("express")
-const http = require("http")
-const { Server } =require( "socket.io" )
+import { Operador, Plano2D } from "./Dimension2D.js";
+
+import { Server } from "socket.io";
+import express from "express";
+import http from "http";
+
+const PORT = 3000;
 const app = express();
 
 const server = http.createServer(app);
 const io = new Server(server);
 
 app.use(express.static("public"));
-//app.get('/', (req, res) => { res.sendFile(__dirname + '/public/index.html'); });
 
-server.listen(3000, () =>  console.log('listening on *:3000'));
+server.listen(PORT, () => console.log(`Running on http://localhost:${PORT}`));
 
-io.on('connection', (socket) => {
-    console.log('Se conecto un usuario');
-    socket.variables={}
-    socket.variables.dimencionConectada = dimensionDeLaVida
-    dimensionDeLaVida.addEspectador(socket)    
-    socket.on("desicion",(desicion)=>{
-        desiciones={
-            "seleccionCasilla":(variables)=>{
-                socket.variables.dimencionConectada.getOperador().ejecutar("invertirPosecionVida",variables)},
-            "procesarMomento":()=>{socket.variables.dimencionConectada.getOperador().ejecutar("ejecucionAlgoritmoDeLaVida");}
-        }[desicion.id](desicion.variables)
-    })
+io.on("connection", (socket) => {
+  console.log("Se conectó un usuario");
+  socket.variables = {};
+  socket.variables.dimensionConectada = dimensionDeLaVida;
+  dimensionDeLaVida.addEspectador(socket);
+  socket.on("decision", ({ id, variables }) => {
+    if (id === "seleccionCasilla") {
+      socket.variables.dimensionConectada
+        .getOperador()
+        .ejecutar("invertirPosesionVida", variables);
+    }
 
-    socket.on('disconnect', () => {
-        console.log('user disconnected');
-        dimensionDeLaVida.removeEspectador(socket)
-    });
+    if (id === "procesarMomento") {
+      socket.variables.dimensionConectada
+        .getOperador()
+        .ejecutar("ejecucionAlgoritmoDeLaVida");
+    }
+  });
+
+  socket.on("disconnect", () => {
+    console.log("Se desconectó un usuario");
+    dimensionDeLaVida.removeEspectador(socket);
+  });
 });
 
-
-
-
-
-//let enon = new Enon
-//si -en esta situacion- utilizo esta neurona(motora) tengo X probabilidad de que Y
-//let mundo = new Mundo
-
-let dimensionesMostrables = new Array
-let dimensionDeLaVida = new Plano2D( "JuegoDeLaVida10*10", "esferico")
-dimensionDeLaVida.setAlto( 10)
-dimensionDeLaVida.setAncho( 10)
-dimensionDeLaVida.setOperador(new Operador(dimensionDeLaVida))
-dimensionesMostrables.push(dimensionDeLaVida)
+const dimensionesMostrables = [];
+const dimensionDeLaVida = new Plano2D("JuegoDeLaVida10*10", "esferico");
+dimensionDeLaVida.setAlto(10);
+dimensionDeLaVida.setAncho(10);
+dimensionDeLaVida.setOperador(new Operador(dimensionDeLaVida));
+dimensionesMostrables.push(dimensionDeLaVida);
